@@ -21,7 +21,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    // Release signing only exists in CI, where the keystore arrives through the environment.
+    // Optional local release signing. CI builds without credentials and does not publish APKs.
     val keystore = System.getenv("KEYSTORE_PATH")
     signingConfigs {
         if (keystore != null) {

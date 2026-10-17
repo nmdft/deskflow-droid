@@ -1,138 +1,120 @@
-<div align="center">
+# Deskflow Droid
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
-  <img src="docs/logo-light.svg" alt="Deskflow Droid" width="420">
-</picture>
+**Use your computer’s mouse and keyboard on an Android phone over your local network.**
 
-Use your desktop's mouse and keyboard on an Android phone or tablet.
+[简体中文](README.zh-CN.md) · [Download APK](https://github.com/nmdft/deskflow-droid/releases) · [Security](SECURITY.md)
 
-**An unofficial third-party client. Not affiliated with, endorsed by, or supported by the Deskflow
-project or Symless.**</br>
-Any bug belongs to this repository only, so report them here first, not upstream.
+An independent experimental fork of [ITESaurabh/deskflow-droid](https://github.com/ITESaurabh/deskflow-droid), used with a desktop [Deskflow](https://github.com/deskflow/deskflow) server. It is **not an official Deskflow release**. Your computer is the server and Android is the client: this does not share an Android mouse back to a computer, mirror the phone screen, or transfer files.
 
-</div>
+> **Experimental:** v1.1.0 is a prerelease. Builds and automated checks passed, but the signed APK with the new package ID has not completed fresh real-device interaction testing. Earlier device checks used a different test package on a Redmi K40 / Android 13. Other devices, Android versions and desktop-server versions are not a validated compatibility matrix.
 
-Easily have your Android Phone / Tablet in [Deskflow](https://github.com/deskflow/deskflow) layout. Seamless as its on Desktop application: taps, drags, scrolling, and typing into the focused text field.
-Remember It's Client only. It speaks the Synergy 1.6 wire format, so a Deskflow, Barrier, or Synergy 1.8 server should work.
+## Why use it?
 
-## About this fork
+- **One desk, one mouse:** move into the Android screen configured in Deskflow; the client renders a pointer and translates clicks, drags and scrolling into accessibility gestures.
+- **Keep your phone keyboard:** on Android 13+, supported text editors use accessibility input connections without replacing your default input method. This is editor input, not a system-wide hardware keyboard.
+- **Adjust for a phone stand:** choose automatic, landscape or portrait pointer coordinates, with a 180° option in fixed modes; this does not force every app to rotate.
+- **Optional mouse-entry wake:** enabled by default and saved immediately. Requests screen wake only when an entry event arrives; never unlocks the phone.
+- **Local connection:** no root, ADB helper, account or cloud service is needed for normal operation. Text clipboard exchange and optional certificate-pinned TLS are implemented, with the limits below.
 
-This is a modified fork of ITESaurabh/deskflow-droid, not an official Deskflow release.
-The desktop computer is the input server; Android receives its mouse and keyboard.
-This app does **not** share an Android-connected mouse back to a desktop.
+## Download and install
 
-Local modifications include pointer orientation, Android 13+ accessibility editor input,
-best-effort text clipboard sync, a simplified connection screen, and optional wake on mouse entry.
-The normal path needs no runtime ADB, Shizuku, root, or replacement input method.
-Legacy experimental ADB/UHID helpers are not required for normal operation.
+1. Open [Releases](https://github.com/nmdft/deskflow-droid/releases), select **v1.1.0 — experimental**, and download `deskflow-droid-v1.1.0.apk`. The GitHub-generated **Source code** archives are for developers, not installers.
+2. Android 11+ (API 30) is the installation floor; **Android 13+ is recommended for enhanced editor input**. Android 11/12 use a more limited accessibility text fallback and are not device-validated here.
+3. Allow APK installation for the app you use to open the file. Install and launch Deskflow Droid. This is a sideloaded APK, not a Play Store release.
+4. In Android settings, enable the Deskflow Droid accessibility service. Some devices block this for sideloaded apps: inspect the source and permissions first, then use Android’s app-info “Allow restricted settings” option if offered. If notifications are requested, allow them to see connection status.
+5. On your computer, install Deskflow, enable its **server** mode and add an Android screen to its layout. Match that screen name with the Android client name (default `android`).
+6. Enter the computer’s LAN address and port (default `24800`) in the Android app. Both ends must agree on TLS. TLS defaults **off** in this client; enabling it at both ends is recommended. Independently compare the first-use certificate fingerprints before approval.
+7. Connect, move the computer pointer across the configured screen edge, and test clicks and typing in an ordinary editable text field.
 
-## Requirements
+Use only a trusted LAN/VPN. Do not expose port 24800 to the public internet. Android/OEM background restrictions can interrupt the connection; if necessary, review the device’s battery restrictions for this app. Always-on operation is not guaranteed.
 
-- Android 11 (API 30) or newer
-- A Deskflow / Barrier / Synergy server on the same network
-- The app's accessibility service enabled; it performs the taps and typing
+### Versions, updates and signing
 
-## Setup
+| Item | Published v1.1.0 APK |
+| --- | --- |
+| Status | Experimental prerelease |
+| Application ID | `cn.nmdft.deskflowclient` |
+| Version name / code | `1.1.0` / `11` |
+| Android floor | Android 11; enhanced editor input requires Android 13+ |
+| Signing | Maintainer’s independent release key; not the upstream or debug key |
+| Exact corresponding source | [v1.1.0 tag](https://github.com/nmdft/deskflow-droid/tree/v1.1.0) |
 
-1. On the desktop, add a screen to the server layout and note its name.
-2. In the app, enter host, port (default 24800), and that **exact** screen name. A mismatch is rejected by the server.
-3. Connect.
-4. “鼠标移入时亮屏” controls screen wake on mouse entry. It defaults to on,
-   saves immediately, and can be changed while connected. Off disables wake requests only;
-   it does not disconnect input sharing. Waking does not unlock the device.
+The fork can coexist with upstream and the older `.fix` test package. Settings, TLS identities and trust pins are not migrated. Debug builds use `cn.nmdft.deskflowclient.debug` and a different signature. The UI is currently mixed Chinese/English; bilingual documentation does not mean the application is fully localized.
 
-### TLS
+A self-managed release signature is sufficient for APK distribution; it is not a Play certification or security endorsement. Future in-place updates require the same application ID, signing identity and an acceptable version code. Keep the signing key private and backed up separately; losing it prevents normal signed upgrades. A differently signed build cannot replace this installation without uninstalling it first, which loses local settings and identity. App backup/device transfer is disabled.
 
-The server's certificate is self-signed, so the app pins its SHA-256 fingerprint on first use and
-compares against Deskflow's on-screen fingerprint. The desktop asks the same about this device;
-the title-bar button shows its fingerprint and randomart. Expect the first connect to bounce twice
-while both sides prompt, the client retries itself. "Forget this server" clears the pin.
+**APK-signing certificate SHA-256** (not the per-device TLS fingerprint):
 
-TLS off in the app means TLS off on the server. There is no negotiation.
-
-## What Works
-
-Move, tap, drag, flick, wheel scroll. Typing in text fields, plus backspace, delete, arrows, Home,
-End, Enter. Select all, copy, cut, paste. Escape and right-click go Back, Alt+Tab opens Recents.
-
-## What Doesn't
-
-This is not a general-purpose hardware keyboard driver: games, canvases, some WebViews,
-and arbitrary system shortcuts may not work. The enhanced editor path needs Android 13+;
-Android 11/12 use the older accessibility path and have not received the same device validation.
-
-Text clipboard sync is best-effort. Android restricts background clipboard reads, so arbitrary
-background clipboard monitoring is not guaranteed. Clipboard text is sent to the connected server;
-file transfer and drag-and-drop are not implemented.
-
-Screen wake was previously device-tested on a Redmi K40 / Android 13. It requires a live connection:
-if Android kills the process or suspends networking during deep sleep, no entry event can arrive.
-Other vendors and Android versions need validation; no universal wake guarantee is made.
-
-## 安装与版本 / Install
-
-本仓库是 nmdft 基于 ITESaurabh 原项目维护的修改版，**电脑控制 Android**，
-不是把 Android 的鼠标反向共享给电脑。请到本仓库 Releases 下载签名 APK。
-
-- 正式包名：`cn.nmdft.deskflowclient`；初次公开版本 `1.1.0`，versionCode `11`。
-- 独立签名，可与上游和旧 `.fix` 测试版共存；不会自动迁移旧版设置、证书或权限。
-- 安装后自行启用新应用的无障碍权限，并重新填写服务器和屏幕名。
-- “鼠标移入时亮屏”默认开启，开关即时保存；亮屏不解锁。
-- 推荐双方启用 TLS 并人工核对证书指纹；只在可信局域网/VPN 使用。
-- Android 11+ 可安装；增强文本输入依赖 Android 13+。其他系统/厂商仍需验证。
-
-本版为实验性发布。此前 Redmi K40 / Android 13 验证过亮屏开关，
-**新包名的签名发布包尚未重新完成真机交互验收**，不宣称所有设备均可用。
-详见 [SECURITY.md](SECURITY.md)、[NOTICE.md](NOTICE.md) 和 [AUDIT.md](AUDIT.md)。
-
-## Build
-
-Requirements: JDK 25 (Gradle daemon toolchain), Android SDK platform 37 and build-tools
-37.0.0. Configure `ANDROID_HOME` or an untracked `local.properties`. Dependencies
-require internet access. Gradle wrapper and dependency versions are included.
-
-```bash
-sh gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest
-sh gradlew assembleRelease  # unsigned unless the signing environment is supplied
+```text
+c1b88911e69d37bad79053e122120061f48b3ea14f8352b5784e8f1f9fc01fdc
 ```
 
-For your own signed build, provide `KEYSTORE_PATH`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`,
-and `KEY_PASSWORD` in the process environment. Never commit them. Increase
-`versionCode` in `app/build.gradle.kts` for each upgrade; do not derive it from CI
-run numbers. Official releases are signed locally; CI has no release key and does
-not publish APKs automatically. Keep the same key for future app upgrades.
+The release contains only the APK and `SHA256SUMS.txt` as maintainer-uploaded assets. To check file integrity after downloading both into the same directory:
 
-Device instrumentation tests require an unlocked test device, manual accessibility
-setup, and (for LAN tests) the explicitly configured test server. They may change
-connection state and are not part of unattended CI. The previous device-test
-results are not a claim that this renamed release passed them.
+```sh
+shasum -a 256 -c SHA256SUMS.txt
+# Linux alternative: sha256sum -c SHA256SUMS.txt
+```
 
-### Legacy helper sources
+Android SDK users can check the APK certificate with `apksigner verify --print-certs deskflow-droid-v1.1.0.apk`. A checksum detects a changed file; it is not an independent authenticity guarantee if obtained from the same compromised source.
 
-`keyboard-helper/`, `tools/keyboard.py` and the Start/Stop scripts are retained for
-source completeness only. They target the `.debug` build, rely on `run-as` and an
-authorized ADB device, and are not supported in the signed release. To experiment,
-first build with `sh keyboard-helper/build-helper.sh`; adjust its SDK/JDK environment
-for your machine. Do not use these helpers for normal accessibility operation.
+## Capabilities and limits
 
-## License
+| Area | What to expect |
+| --- | --- |
+| Mouse | Pointer overlay and accessibility gestures; not raw hardware mouse injection. Games, custom canvases and all multitouch interactions are not guaranteed. |
+| Keyboard | Best in supported text editors on Android 13+. Basic editing/navigation and implemented copy/cut/paste shortcuts are not a promise of every hardware shortcut, key-up behavior or arbitrary app support. |
+| Chinese / IME | Your default IME remains selected. Desktop-committed text and app/editor behavior matter; desktop key events are not guaranteed to drive the phone IME’s pinyin composition. |
+| Clipboard | Text only, with bounded payloads. Desktop-to-phone reception is implemented; phone-to-desktop works through permitted reads or the client’s copy/cut selection path. Arbitrary background copies, images and files are not guaranteed. |
+| Wake | Best effort while the service, Wi-Fi and connection remain alive. Deep sleep, OEM power management and process death can prevent entry events; no lock-screen bypass. |
+| Servers | Intended for Deskflow. Related protocol handling does not establish tested Barrier, Synergy, Input Leap or all Deskflow-version compatibility. |
 
-Copyright (C) 2026 ITESaurabh
+Accessibility can inspect focused text and perform gestures; clipboard text may reach the configured desktop. Password checks suppress selected-text forwarding in the copy/cut path; they do not mean every input path excludes password editors. This is not a formal security audit. TLS private identity and trust pins are stored in app-private preferences, not Android Keystore; backup is disabled. See [SECURITY.md](SECURITY.md) before sensitive use.
 
-`SPDX-License-Identifier: GPL-2.0-only WITH LicenseRef-OpenSSL-Exception`
+## Troubleshooting
 
-Deskflow's `LICENSE` is plain GPL-2.0, but its source files add the OpenSSL linking exception on
-top. This client is a fresh Kotlin implementation, not a port, but the message codes, packet
-layouts, and KeyID mapping come from Deskflow's sources, so it carries upstream's terms unchanged:
-GPL-2.0 **only**, no "or later", exception passed through rather than dropped.
+- **Cannot connect:** check server mode, matching screen name, LAN address, port, firewall and matching TLS settings. Do not solve this by opening the port publicly.
+- **Connected but no input:** recheck the accessibility service, unlock the device manually and try a normal text field. A successful TCP connection is not proof an app supports editor input.
+- **Certificate changed:** verify the desktop certificate independently before forgetting/reapproving a pin. Never blindly accept an unexpected fingerprint.
+- **Pointer direction is wrong:** use the pointer-direction controls; fixed mode has a 180° reverse option.
+- **Screen stays dark:** enable “鼠标移入时亮屏”, then check whether the connection survived sleep. This does not unlock a locked phone.
+- **An update will not install:** check package ID, signer and version code. Upstream, old test packages and independently built APKs are not interchangeable upgrades.
 
-Nothing here links OpenSSL (TLS is Android's JSSE), so the exception is inert. It stays for
-whoever forks this into something that does. Texts:
-[`LICENSE`](LICENSE), [`LICENSES/LicenseRef-OpenSSL-Exception.txt`](LICENSES/LicenseRef-OpenSSL-Exception.txt).
+## Architecture and source layout
 
-Upstream also licenses its docs MIT, its artwork GPL-2.0-only, and its bundled KDE Breeze icons
-LGPL-2.1-only. None of those files are copied here.
+```text
+Desktop Deskflow server
+  └─ trusted LAN/VPN: TCP or optional TLS
+      └─ DeskflowClient + Protocol (connection and input/clipboard messages)
+          └─ InjectorService (Android accessibility service)
+              ├─ pointer overlay + gesture dispatch + PointerSpace
+              ├─ AccessibilityKeyboard / ImeKeys (Android 13+ editor input)
+              ├─ ClipboardSync (best-effort text exchange)
+              └─ ScreenWake (saved mouse-entry wake preference)
+```
 
-"Deskflow" is the name of the upstream project, used here only to say what this client talks to.
-The name and any associated marks belong to their owners, not to this repository.
+`MainActivity` provides connection/settings UI; `KeepAliveService` maintains a foreground-service notification. `Tls` handles identity and pinned server trust. Production sources live in `app/src/main`, JVM regression tests in `app/src/test`, and device tests in `app/src/androidTest`.
+
+The current branch removes the unused legacy shell/UHID helper, its launch scripts, dead input classes and exploratory/template tests. It retains the working accessibility implementation, build files, resources, meaningful regression tests, licenses and attribution. **The published v1.1.0 APK is unchanged; its tag still preserves all corresponding source, including the old helper.** Branch cleanup is not deletion from Git history. No signing material, device-state files or private test recordings are intended for publication.
+
+## Build and verification
+
+Use the committed Gradle wrapper, a JDK 25 toolchain and an Android SDK with `platform-tools`, `platforms;android-37.0` and `build-tools;37.0.0`. Set `ANDROID_HOME` or a private `local.properties` SDK path. Gradle can download the configured daemon toolchain; offline builds need dependencies provisioned in advance.
+
+```sh
+sh gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest assembleRelease --console=plain
+```
+
+- Debug APK: `app/build/outputs/apk/debug/app-debug.apk`.
+- Release output: `app/build/outputs/apk/release/`; without signing environment variables it is unsigned and is **not** the downloadable signed release.
+- Optional local signing reads `KEYSTORE_PATH`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`. Supply them privately; never commit them, print them in logs or place the keystore in this repository.
+- GitHub Actions runs checks/builds without signing credentials; it does not publish signed releases.
+- Device tests need an appropriate connected device and, for some tests, explicit server/fixture setup. Compiling instrumentation tests does not run them. Wake tests may turn the device screen off.
+
+See [AUDIT.md](AUDIT.md) for version-specific evidence and remaining acceptance checks. Automated build success does not establish everyday input reliability.
+
+## Contributing and license
+
+Report the app version, Android/OEM version, desktop-server version and reproduction steps. Redact host addresses, device IDs, clipboard contents, certificates/private keys and tokens from logs. Security reports follow [SECURITY.md](SECURITY.md).
+
+Based on ITESaurabh’s project at revision `28f80c7bbe340ce883df04ac1e5317acd4fa7702`; see [NOTICE.md](NOTICE.md) for changes and provenance. Licensed under **GPL-2.0-only WITH LicenseRef-OpenSSL-Exception**; the original [LICENSE](LICENSE) and [exception](LICENSES/LicenseRef-OpenSSL-Exception.txt) are preserved. No official Deskflow affiliation or trademark ownership is claimed.

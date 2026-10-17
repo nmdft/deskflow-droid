@@ -12,8 +12,10 @@ metadata; attribution, source provenance and the original license are preserved.
 Changes include accessibility editor input, pointer orientation, best-effort text
 clipboard synchronization, mouse-entry wake preference, simplified connection UI,
 regression tests, independent application ID, backup exclusions and release docs.
-Experimental shell/UHID helper sources remain available but are not the normal input
-backend. No root/ADB is needed for normal accessibility operation.
+The current branch removes unused experimental shell/UHID helper sources and
+exploratory/template tests. The v1.1.0 tag preserves the complete source for its
+unchanged APK, including those legacy files. No root/ADB is needed for normal
+accessibility operation.
 
 License: GPL-2.0-only WITH LicenseRef-OpenSSL-Exception. See LICENSE and
 LICENSES/LicenseRef-OpenSSL-Exception.txt. Existing copyright notices and exceptions
