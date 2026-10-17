@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Deskflow Droid</string>
+    <string name="service_name">Deskflow Droid input</string>
+    <string name="service_desc">Draws a cursor and replays the mouse and keyboard sent by a Deskflow server.</string>
+</resources>

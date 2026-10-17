@@ -1,0 +1,62 @@
+# Gradle files
+.gradle/
+build/
+
+# Local configuration file (sdk path, etc)
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+local.properties
+
+# Log/OS Files
+*.log
+
+# Android Studio generated files and folders
+captures/
+.externalNativeBuild/
+.cxx/
+*.aab
+*.apk
+output-metadata.json
+
+# IntelliJ
+*.iml
+misc.xml
+deploymentTargetDropDown.xml
+render.experimental.xml
+
+# Keystore files
+*.jks
+*.keystore
+*.p12
+*.pfx
+
+# Google Services (e.g. APIs or Firebase)
+google-services.json
+
+# Android Profiling
+*.hprof
+
+# misc
+grant.bat
+
+# Local device test state, recordings and Kotlin cache
+/local-test/
+.kotlin/
+
+# Credentials and local environment overrides
+.env
+.env.*
+!.env.example
+/keystore.properties
+
+# IDE device selectors and private release materials
+/.idea/
+/signing/
+/dist/
+*.pem
+*.key

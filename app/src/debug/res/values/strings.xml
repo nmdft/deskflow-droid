@@ -1,0 +1,5 @@
+<!-- Modified by nmdft on 2026-10-17; see NOTICE.md. -->
+<resources>
+    <string name="app_name">Deskflow Droid Debug</string>
+    <string name="service_name">Deskflow Droid Debug input</string>
+</resources>
