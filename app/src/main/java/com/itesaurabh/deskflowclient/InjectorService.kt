@@ -63,6 +63,7 @@ class InjectorService : AccessibilityService(), Injector {
          * focused field.
          */
         private const val RESYNC_MS = 400L
+        private const val AUTO_CONNECT_INTERVAL_MS = 3 * 60 * 1000L
 
         /** Shift_L..Hyper_R, plus the three lock keys. Sent as key presses, meaningless to us. */
         private val MODIFIER_KEY_IDS = (0xEFE1..0xEFEE) + listOf(0xEF14, 0xEF7E, 0xEF7F)
@@ -72,6 +73,8 @@ class InjectorService : AccessibilityService(), Injector {
 
     private val main = Handler(Looper.getMainLooper())
     private var client: DeskflowClient? = null
+    private var manualDisconnect = false
+    private var lastConnectAttemptAt = 0L
     private lateinit var screenWake: ScreenWake
     private lateinit var clipboardSync: ClipboardSync
     private var accessibilityKeyboard: AccessibilityKeyboard? = null
@@ -144,6 +147,7 @@ class InjectorService : AccessibilityService(), Injector {
             Logs.add("service bound, running the queued connect")
             connect(it.host, it.port, it.name, it.useTls)
         }
+        autoConnectIfIdle()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -154,7 +158,7 @@ class InjectorService : AccessibilityService(), Injector {
 
     override fun onDestroy() {
         Logs.add("accessibility service stopped")
-        disconnect()
+        disconnect(manual = true)
         clipboardSync.stop()
         screenWake.close()
         removeOverlay()
@@ -176,8 +180,10 @@ class InjectorService : AccessibilityService(), Injector {
     // -- connection ------------------------------------------------------------------------
 
     fun connect(host: String, port: Int, name: String, useTls: Boolean) {
-        disconnect()
+        manualDisconnect = false
+        disconnect(manual = false)
         KeepAliveService.start(this)
+        lastConnectAttemptAt = android.os.SystemClock.elapsedRealtime()
         val app = applicationContext
         val secure = if (useTls) { socket: Socket -> Tls.wrap(app, socket, host, port) } else null
         client = DeskflowClient(
@@ -190,11 +196,33 @@ class InjectorService : AccessibilityService(), Injector {
     }
 
     fun disconnect() {
+        disconnect(manual = true)
+    }
+
+    private fun disconnect(manual: Boolean) {
+        if (manual) manualDisconnect = true
         pendingConnect = null
         if (::clipboardSync.isInitialized) clipboardSync.resetSession()
         client?.disconnect()
         client = null
         KeepAliveService.stop(this)
+    }
+
+    fun autoConnectIfIdle() {
+        val prefs = getSharedPreferences("deskflow", Context.MODE_PRIVATE)
+        if (!prefs.getBoolean("auto_connect", true)) return
+        if (manualDisconnect || ClientState.phase != ClientState.Phase.Idle || client?.isAlive == true) return
+        if (lastConnectAttemptAt != 0L && SystemClock.elapsedRealtime() - lastConnectAttemptAt < AUTO_CONNECT_INTERVAL_MS) return
+        connectSavedSettings()
+    }
+
+    private fun connectSavedSettings() {
+        val prefs = getSharedPreferences("deskflow", Context.MODE_PRIVATE)
+        val host = prefs.getString("host", "").orEmpty().trim()
+        val name = prefs.getString("name", "android").orEmpty().trim()
+        val port = prefs.getString("port", Protocol.DEFAULT_PORT.toString())?.toIntOrNull() ?: Protocol.DEFAULT_PORT
+        if (host.isBlank() || name.isBlank()) return
+        connect(host, port, name, prefs.getBoolean("tls", false))
     }
 
     val isConnected: Boolean

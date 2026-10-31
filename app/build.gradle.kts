@@ -1,4 +1,4 @@
-// Modified by nmdft on 2026-10-17; see NOTICE.md for fork changes and license.
+// Modified by nmdft on 2026-10-31; see NOTICE.md.
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -15,13 +15,13 @@ android {
         // ACTION_IME_ENTER and WindowManager.currentWindowMetrics are both API 30.
         minSdk = 30
         targetSdk = 37
-        versionCode = (findProperty("versionCode") as String?)?.toInt() ?: 11
-        versionName = findProperty("versionName") as String? ?: "1.1.0"
+        versionCode = (findProperty("versionCode") as String?)?.toInt() ?: 12
+        versionName = findProperty("versionName") as String? ?: "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    // Optional local release signing. CI builds without credentials and does not publish APKs.
+    // Optional local release signing; credentials stay outside the repository.
     val keystore = System.getenv("KEYSTORE_PATH")
     signingConfigs {
         if (keystore != null) {

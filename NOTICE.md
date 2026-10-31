@@ -5,12 +5,14 @@ Original author: ITESaurabh, copyright 2026.
 Base revision: 28f80c7bbe340ce883df04ac1e5317acd4fa7702.
 
 This independently maintained source snapshot was modified and published by nmdft
-on 2026-10-17. It is not an official Deskflow or upstream Android-client release.
+starting on 2026-10-17. Updates are recorded in the project history. It is not an
+official Deskflow or upstream Android-client release.
 The upstream Git history is not imported because it contains historical IDE device
 metadata; attribution, source provenance and the original license are preserved.
 
 Changes include accessibility editor input, pointer orientation, best-effort text
 clipboard synchronization, mouse-entry wake preference, simplified connection UI,
+automatic connection and low-frequency retry, idle clipboard thread blocking,
 regression tests, independent application ID, backup exclusions and release docs.
 The current branch removes unused experimental shell/UHID helper sources and
 exploratory/template tests. The v1.1.0 tag preserves the complete source for its

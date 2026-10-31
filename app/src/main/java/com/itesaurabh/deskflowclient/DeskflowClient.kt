@@ -137,7 +137,7 @@ class DeskflowClient(
             clipboardSender = Thread({
                 try {
                     while (!stopping && !s.isClosed) {
-                        val text = pendingClipboard.poll(500, java.util.concurrent.TimeUnit.MILLISECONDS) ?: continue
+                        val text = pendingClipboard.take()
                         synchronized(out) {
                             if (!stopping && !s.isClosed)
                                 for (packet in ClipboardWire.packets(text, sequence)) Protocol.writePacket(out, packet)
@@ -317,7 +317,7 @@ class DeskflowClient(
         const val HANDSHAKE_TIMEOUT_MS = 10_000
         const val HELLO_TIMEOUT_MS = 90_000
         const val READ_TIMEOUT_MS = 15_000
-        const val RETRY_DELAY_MS = 3_000L
+        const val RETRY_DELAY_MS = 3 * 60 * 1000L
         const val MAX_KEY_REPEAT = 64
     }
 }

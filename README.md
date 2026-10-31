@@ -6,7 +6,7 @@
 
 An independent experimental fork of [ITESaurabh/deskflow-droid](https://github.com/ITESaurabh/deskflow-droid), used with a desktop [Deskflow](https://github.com/deskflow/deskflow) server. It is **not an official Deskflow release**. Your computer is the server and Android is the client: this does not share an Android mouse back to a computer, mirror the phone screen, or transfer files.
 
-> **Experimental:** v1.1.0 is a prerelease. Builds and automated checks passed, but the signed APK with the new package ID has not completed fresh real-device interaction testing. Earlier device checks used a different test package on a Redmi K40 / Android 13. Other devices, Android versions and desktop-server versions are not a validated compatibility matrix.
+> **Experimental:** v1.2.0 is a prerelease. Debug build and launch were verified on a Redmi K40 running Android 13. Full mouse/keyboard interaction still requires enabling the app's Android Accessibility service and has not been revalidated in this release. Other devices, Android versions and desktop-server versions are not a validated compatibility matrix.
 
 ## Why use it?
 
@@ -15,6 +15,7 @@ An independent experimental fork of [ITESaurabh/deskflow-droid](https://github.c
 - **Adjust for a phone stand:** choose automatic, landscape or portrait pointer coordinates, with a 180° option in fixed modes; this does not force every app to rotate.
 - **Optional mouse-entry wake:** enabled by default and saved immediately. Requests screen wake only when an entry event arrives; never unlocks the phone.
 - **Local connection:** no root, ADB helper, account or cloud service is needed for normal operation. Text clipboard exchange and optional certificate-pinned TLS are implemented, with the limits below.
+- **Connection recovery:** optionally connect to the saved server when the Accessibility service starts and retry transient disconnects every three minutes. Disable automatic connection in the connection settings to keep the client manual.
 
 ## Download and install
 

@@ -295,6 +295,9 @@ private fun ConnectionScreen(serviceEnabled: Boolean, modifier: Modifier = Modif
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("deskflow", Context.MODE_PRIVATE) }
     val form = remember { FormState(prefs, Tls.pinnedFingerprint(context)) }
+    LaunchedEffect(serviceEnabled) {
+        if (serviceEnabled) InjectorService.instance?.autoConnectIfIdle()
+    }
 
     var logExpanded by remember { mutableStateOf(false) }
     val idle = ClientState.phase == ClientState.Phase.Idle
@@ -431,37 +434,48 @@ private fun ConnectionForm(
         ) {
             val column = Modifier.fillMaxWidth()
 
-            Column(modifier = column, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                SectionLabel("鼠标操作方向")
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    for ((mode, title) in listOf(-1 to "跟随画面", 1 to "横向", 0 to "竖向")) {
-                        FilterChip(selected = pointerMode == mode, onClick = {
-                            pointerMode = mode
-                            prefs.edit().putInt("pointer_mode", mode).apply()
-                            InjectorService.instance?.setPointerMode(mode, pointerReversed)
-                        }, label = { Text(title) })
+            Column(modifier = column, verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("鼠标操作方向", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                    var directionExpanded by remember { mutableStateOf(false) }
+                    Box {
+                        OutlinedButton(onClick = { directionExpanded = true }) {
+                            Text(when (pointerMode) { 1 -> "横向 ▾"; 0 -> "竖向 ▾"; else -> "跟随画面 ▾" }, style = MaterialTheme.typography.bodyLarge)
+                        }
+                        DropdownMenu(expanded = directionExpanded, onDismissRequest = { directionExpanded = false }) {
+                            for ((mode, title) in listOf(-1 to "跟随画面", 1 to "横向", 0 to "竖向")) {
+                                DropdownMenuItem(text = { Text(title, style = MaterialTheme.typography.bodyLarge) }, onClick = {
+                                    pointerMode = mode
+                                    prefs.edit().putInt("pointer_mode", mode).apply()
+                                    InjectorService.instance?.setPointerMode(mode, pointerReversed)
+                                    directionExpanded = false
+                                })
+                            }
+                        }
                     }
                 }
-                if (pointerMode != -1) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("反向 180°", modifier = Modifier.weight(1f))
-                        Switch(checked = pointerReversed, onCheckedChange = {
-                            pointerReversed = it
-                            prefs.edit().putBoolean("pointer_reversed", it).apply()
-                            InjectorService.instance?.setPointerMode(pointerMode, it)
-                        })
-                    }
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("反转180度", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                    Switch(checked = pointerReversed, onCheckedChange = {
+                        pointerReversed = it
+                        prefs.edit().putBoolean("pointer_reversed", it).apply()
+                        InjectorService.instance?.setPointerMode(pointerMode, it)
+                    })
                 }
-                if (pointerMode != -1) Text(
-                    if (pointerMode == 1) "手机顶部朝${if (pointerReversed) "右" else "左"}"
-                    else "手机顶部朝${if (pointerReversed) "下" else "上"}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
 
             Row(modifier = column, verticalAlignment = Alignment.CenterVertically) {
-                Text("鼠标移入时亮屏", modifier = Modifier.weight(1f))
+                Text("自动连接", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                var autoConnect by remember { mutableStateOf(prefs.getBoolean("auto_connect", true)) }
+                Switch(checked = autoConnect, onCheckedChange = {
+                    autoConnect = it
+                    prefs.edit().putBoolean("auto_connect", it).apply()
+                    if (it) InjectorService.instance?.autoConnectIfIdle()
+                })
+            }
+
+            Row(modifier = column, verticalAlignment = Alignment.CenterVertically) {
+                Text("鼠标移入时亮屏", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                 Switch(checked = wakeOnMouseEntry, onCheckedChange = {
                     wakeOnMouseEntry = it
                     prefs.edit().putBoolean("wake_on_mouse_entry", it).apply()
